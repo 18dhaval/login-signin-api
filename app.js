@@ -31,11 +31,7 @@ app.post("/register", async(req, res) => {
                 phone: req.body.phone,
                 gender: req.body.gender
             }) 
-            
-            //pwd hashing
-            
-
-
+          //pwd hashing
            const registered = await registerEmployess.save();
           // res.status(201).render("index");
           res.status(201).send(registered);
@@ -62,11 +58,15 @@ app.get('/register', async(req, res) => {
     try{
       const email = req.body.email;
       const password = req.body.password;
-      console.log(email);
-      console.log(password);
+      // console.log(email);
+      // console.log(password);
 
       const useremail = await register.findOne({email:email});
-      if(useremail.password === password){
+
+      //bcypt will check pwd is right or wrong
+      const isMatch = await bcrypt.compare(password, useremail.password);
+
+      if(isMatch){
         res.sendFile(__dirname + '/public/welcome.html');
       }else{
         res.send("Details are wrong")
@@ -79,4 +79,4 @@ app.get('/register', async(req, res) => {
 
 app.listen(port, () =>{
     console.log(`Server is Running on ${port}`);
-})
+});
