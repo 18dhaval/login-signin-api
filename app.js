@@ -5,6 +5,7 @@ const port = process.env.PORT || 3000;
 require("./src/db/connection");
 const path = require("path");
 const register = require("./src/models/register"); 
+const bcrypt = require("bcrypt");
 
 app.use(express.json());
 app.use(express.urlencoded({extended:false})); 
@@ -30,6 +31,11 @@ app.post("/register", async(req, res) => {
                 phone: req.body.phone,
                 gender: req.body.gender
             }) 
+            
+            //pwd hashing
+            
+
+
            const registered = await registerEmployess.save();
           // res.status(201).render("index");
           res.status(201).send(registered);
