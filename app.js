@@ -38,27 +38,28 @@ app.post("/register", async(req, res) => {
                 confirmpassword:cpassword,
                 phone: req.body.phone,
                 gender: req.body.gender
-            }) 
+            });
 
             //jwt token
               console.log("the Success Part" + registerEmployess);
               const token = await registerEmployess.generateAuthToken();
+              //this req.cookies.jwt not generate token every time it refresh
+              // const token = req.cookies.jwt ||await registerEmployess.generateAuthToken();
               console.log("the token part" + token);
-
-              //cookie part
-              res.cookie("jwt", token,{
-                expires:new Date(Date.now()+ 500000),
-                httpOnly:true
-              });
-              // console.log(cookie);
-
 
 
           //pwd hashing
            const registered = await registerEmployess.save();
+           //cookie part
+           res.cookie("jwt", token,{
+            expires:new Date(Date.now()+ 500000),
+            httpOnly:true
+          });
+          // console.log(cookie);
           // res.status(201).render("index");
           // res.status(201).send(registered);
           res.sendFile(__dirname + '/public/welcome.html');
+          // res.redirect('/welcome');
         }else{
             res.send("passwords are not matching");
         }
@@ -68,7 +69,9 @@ app.post("/register", async(req, res) => {
     }
   });
 
-
+//   app.get('/welcome', async(req, res) => {
+//     res.sendFile(__dirname + '/public/welcome.html');
+// });
   
 app.get('/register', async(req, res) => {
     res.sendFile(__dirname + '/public/index.html');
@@ -92,6 +95,10 @@ app.get('/register', async(req, res) => {
       const isMatch = await bcrypt.compare(password, useremail.password);
       
       //middleware JWT token
+      //this req.cookies.jwt not generate token every time it refresh
+      // const token = req.cookies.jwt || await useremail.generateAuthToken();
+      
+      
       const token = await useremail.generateAuthToken();
       console.log("the token part" + token);
 
