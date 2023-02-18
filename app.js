@@ -7,6 +7,7 @@ const path = require("path");
 const register = require("./src/models/register"); 
 const bcrypt = require("bcrypt");
 
+
 app.use(express.json());
 app.use(express.urlencoded({extended:false})); 
 
@@ -31,11 +32,17 @@ app.post("/register", async(req, res) => {
                 phone: req.body.phone,
                 gender: req.body.gender
             }) 
+              console.log("the Success Part" + registerEmployess);
+              const token = await registerEmployess.generateAuthToken();
+              console.log("the token part" + token);
+
+
+
           //pwd hashing
            const registered = await registerEmployess.save();
           // res.status(201).render("index");
-          res.status(201).send(registered);
-          // res.sendFile(__dirname + '/public/welcome.html');
+          // res.status(201).send(registered);
+          res.sendFile(__dirname + '/public/welcome.html');
         }else{
             res.send("passwords are not matching");
         }
