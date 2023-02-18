@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require("express");
 const async = require("hbs/lib/async");
 const app = express();
@@ -6,15 +7,21 @@ require("./src/db/connection");
 const path = require("path");
 const register = require("./src/models/register"); 
 const bcrypt = require("bcrypt");
-
+const cookieParser = require("cookie-parser");
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({extended:false})); 
 
 //requiring html content from public folder
 app.get('/', async (req, res) => {
     res.send("Hello From Website");
   });
+
+app.get('/secret', async (req, res) => {
+    console.log(`get cookies ${req.cookies.jwt}`);
+    res.send("secret");
+});  
 
 
 app.post("/register", async(req, res) => {
@@ -32,9 +39,18 @@ app.post("/register", async(req, res) => {
                 phone: req.body.phone,
                 gender: req.body.gender
             }) 
+
+            //jwt token
               console.log("the Success Part" + registerEmployess);
               const token = await registerEmployess.generateAuthToken();
               console.log("the token part" + token);
+
+              //cookie part
+              res.cookie("jwt", token,{
+                expires:new Date(Date.now()+ 500000),
+                httpOnly:true
+              });
+              // console.log(cookie);
 
 
 
@@ -51,6 +67,8 @@ app.post("/register", async(req, res) => {
         res.status(400).send(err);
     }
   });
+
+
   
 app.get('/register', async(req, res) => {
     res.sendFile(__dirname + '/public/index.html');
@@ -72,6 +90,20 @@ app.get('/register', async(req, res) => {
 
       //bcypt will check pwd is right or wrong
       const isMatch = await bcrypt.compare(password, useremail.password);
+      
+      //middleware JWT token
+      const token = await useremail.generateAuthToken();
+      console.log("the token part" + token);
+
+      //cookie part
+      res.cookie("jwt", token,{
+        expires:new Date(Date.now()+ 500000),
+        httpOnly:true,
+        // secure: true //it will only work on https
+      });
+
+    
+      
 
       if(isMatch){
         res.sendFile(__dirname + '/public/welcome.html');
