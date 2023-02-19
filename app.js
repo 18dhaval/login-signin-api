@@ -8,6 +8,7 @@ const path = require("path");
 const register = require("./src/models/register"); 
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
+const auth = require("../login-signin-api/src/middleware/auth");
 
 app.use(express.json());
 app.use(cookieParser());
@@ -18,10 +19,31 @@ app.get('/', async (req, res) => {
     res.send("Hello From Website");
   });
 
-app.get('/secret', async (req, res) => {
+app.get('/secret', auth ,async (req, res) => {
     console.log(`get cookies ${req.cookies.jwt}`);
-    res.send("secret");
-});  
+    res.sendFile(__dirname + '/public/secret.html');
+}); 
+
+app.get("/logout", auth, async(req,res) => {
+  try {
+    // console.log(req.user);
+
+    //loggout from single Device
+    // req.user.tokens = req.user.tokens.filter((currElement) => {
+    //     return currElement.token !== req.token;
+    // })
+
+    //logout from all device 
+    req.user.tokens = [];
+
+    res.clearCookie("jwt");
+    console.log("LogOut Successfully");
+    await req.user.save();
+    res.sendFile(__dirname + '/public/login.html');
+  } catch (error) {
+     res.status(500).send(error);
+  }
+})
 
 
 app.post("/register", async(req, res) => {
